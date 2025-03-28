@@ -51,6 +51,14 @@ export const UserService = {
       throw error;
     }
   },
+  createUser: async (userData: { first_name: string; last_name: string; email: string }) => {
+    try {
+      const response = await api.post('/users', userData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
   updateUser: async (id: number, userData: { first_name: string; last_name: string; email: string }) => {
     try {
       const response = await api.put(`/users/${id}`, userData);

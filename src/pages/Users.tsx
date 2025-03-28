@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -24,7 +25,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
-import { Loader2, LogOut, Search, Edit, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, LogOut, Search, Edit, Trash2, ChevronLeft, ChevronRight, UserPlus } from 'lucide-react';
 
 interface User {
   id: number;
@@ -40,6 +41,7 @@ const Users = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editFormData, setEditFormData] = useState({
@@ -47,8 +49,18 @@ const Users = () => {
     last_name: '',
     email: '',
   });
+  const [createFormData, setCreateFormData] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [errors, setErrors] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+  });
+  const [createErrors, setCreateErrors] = useState({
     first_name: '',
     last_name: '',
     email: '',
@@ -95,6 +107,20 @@ const Users = () => {
     setIsDeleteDialogOpen(true);
   };
 
+  const handleCreateClick = () => {
+    setCreateFormData({
+      first_name: '',
+      last_name: '',
+      email: '',
+    });
+    setCreateErrors({
+      first_name: '',
+      last_name: '',
+      email: '',
+    });
+    setIsCreateDialogOpen(true);
+  };
+
   const validateEditForm = () => {
     let valid = true;
     const newErrors = {
@@ -124,6 +150,35 @@ const Users = () => {
     return valid;
   };
 
+  const validateCreateForm = () => {
+    let valid = true;
+    const newErrors = {
+      first_name: '',
+      last_name: '',
+      email: '',
+    };
+
+    if (!createFormData.first_name.trim()) {
+      newErrors.first_name = 'First name is required';
+      valid = false;
+    }
+
+    if (!createFormData.last_name.trim()) {
+      newErrors.last_name = 'Last name is required';
+      valid = false;
+    }
+
+    if (!createFormData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(createFormData.email)) {
+      newErrors.email = 'Email is invalid';
+      valid = false;
+    }
+
+    setCreateErrors(newErrors);
+    return valid;
+  };
+
   const handleEditSubmit = async () => {
     if (!validateEditForm() || !selectedUser) return;
 
@@ -150,6 +205,41 @@ const Users = () => {
       toast({
         title: "Update Failed",
         description: "There was a problem updating the user. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateSubmit = async () => {
+    if (!validateCreateForm()) return;
+
+    try {
+      setLoading(true);
+      const response = await UserService.createUser(createFormData);
+      
+      // Add the new user to the local state
+      const newUser = {
+        id: response.id,
+        first_name: createFormData.first_name,
+        last_name: createFormData.last_name,
+        email: createFormData.email,
+        avatar: `https://ui-avatars.com/api/?name=${createFormData.first_name}+${createFormData.last_name}`,
+      };
+      
+      setUsers([newUser, ...users]);
+      
+      setIsCreateDialogOpen(false);
+      toast({
+        title: "User Created",
+        description: "New user has been added successfully",
+      });
+    } catch (error) {
+      console.error('Error creating user:', error);
+      toast({
+        title: "Creation Failed",
+        description: "There was a problem creating the user. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -215,25 +305,36 @@ const Users = () => {
 
         <div className="flex items-center justify-between gap-2">
           <Button
-            variant="outline"
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1 || loading}
+            variant="default"
+            onClick={handleCreateClick}
+            className="bg-green-500 hover:bg-green-600"
           >
-            <ChevronLeft className="h-4 w-4" />
-            Previous
-          </Button>
-          <span className="text-sm text-gray-500">
-            Page {currentPage} of {totalPages}
-          </span>
-          <Button
-            variant="outline"
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages || loading}
-          >
-            Next
-            <ChevronRight className="h-4 w-4" />
+            <UserPlus className="mr-2 h-4 w-4" />
+            Create User
           </Button>
         </div>
+      </div>
+
+      <div className="mb-6 flex items-center justify-between">
+        <Button
+          variant="outline"
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1 || loading}
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Previous
+        </Button>
+        <span className="text-sm text-gray-500">
+          Page {currentPage} of {totalPages}
+        </span>
+        <Button
+          variant="outline"
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages || loading}
+        >
+          Next
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       </div>
 
       {loading ? (
@@ -297,6 +398,9 @@ const Users = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
+            <DialogDescription>
+              Make changes to the user information below.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -352,6 +456,79 @@ const Users = () => {
                 </>
               ) : (
                 'Save Changes'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create User Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New User</DialogTitle>
+            <DialogDescription>
+              Enter the details for the new user below.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="create_first_name">First Name</Label>
+              <Input
+                id="create_first_name"
+                value={createFormData.first_name}
+                onChange={(e) =>
+                  setCreateFormData({ ...createFormData, first_name: e.target.value })
+                }
+              />
+              {createErrors.first_name && (
+                <p className="text-sm text-red-500">{createErrors.first_name}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="create_last_name">Last Name</Label>
+              <Input
+                id="create_last_name"
+                value={createFormData.last_name}
+                onChange={(e) =>
+                  setCreateFormData({ ...createFormData, last_name: e.target.value })
+                }
+              />
+              {createErrors.last_name && (
+                <p className="text-sm text-red-500">{createErrors.last_name}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="create_email">Email</Label>
+              <Input
+                id="create_email"
+                type="email"
+                value={createFormData.email}
+                onChange={(e) =>
+                  setCreateFormData({ ...createFormData, email: e.target.value })
+                }
+              />
+              {createErrors.email && (
+                <p className="text-sm text-red-500">{createErrors.email}</p>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleCreateSubmit} 
+              disabled={loading}
+              className="bg-green-500 hover:bg-green-600"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                'Create User'
               )}
             </Button>
           </DialogFooter>
