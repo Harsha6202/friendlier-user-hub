@@ -1,69 +1,108 @@
-# Welcome to your Lovable project
 
-## Project info
+# User Management System
 
-**URL**: https://lovable.dev/projects/114acc04-1de6-4a54-b372-cf41b4f0f98b
+A React application that integrates with the Reqres API to perform basic user management functions including authentication, listing users, and managing user data (create, update, delete).
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- **Authentication**: Login screen with credential validation
+- **User Management**: 
+  - View paginated list of users
+  - Create new users
+  - Update existing user details
+  - Delete users
+- **Responsive Design**: Works well on both desktop and mobile devices
+- **Form Validation**: Client-side validation for all forms
+- **Error Handling**: Graceful handling of API errors with appropriate user feedback
 
-**Use Lovable**
+## Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/114acc04-1de6-4a54-b372-cf41b4f0f98b) and start prompting.
+- **Frontend Framework**: React with TypeScript
+- **Routing**: React Router
+- **HTTP Client**: Axios
+- **UI Components**: shadcn/ui
+- **Styling**: Tailwind CSS
+- **State Management**: React Context API
+- **Data Fetching**: TanStack Query (React Query)
 
-Changes made via Lovable will be committed automatically to this repo.
+## Getting Started
 
-**Use your preferred IDE**
+### Prerequisites
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Node.js (v14 or later)
+- npm or yarn
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Installation
 
-Follow these steps:
+1. Clone the repository
+   ```sh
+   git clone <repository-url>
+   cd user-management-system
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+2. Install dependencies
+   ```sh
+   npm install
+   # or
+   yarn install
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+3. Start the development server
+   ```sh
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+4. Open your browser and navigate to `http://localhost:8080`
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## Usage
 
-**Edit a file directly in GitHub**
+### Authentication
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Use the following credentials to log in:
+- Email: eve.holt@reqres.in
+- Password: cityslicka
 
-**Use GitHub Codespaces**
+### User Management
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+After logging in, you can:
+- View the list of users
+- Create new users by clicking the "Create User" button
+- Edit user details by clicking the edit icon
+- Delete users by clicking the delete icon
 
-## What technologies are used for this project?
+## API Integration
 
-This project is built with .
+This application integrates with the Reqres API (https://reqres.in/), which provides endpoints for:
+- Authentication: POST /api/login
+- List Users: GET /api/users?page=1
+- Create User: POST /api/users
+- Update User: PUT /api/users/{id}
+- Delete User: DELETE /api/users/{id}
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Considerations and Assumptions
 
-## How can I deploy this project?
+1. **Token Management**: 
+   - The application stores the authentication token in local storage
+   - No token expiration handling is implemented as the Reqres API doesn't provide expiration details
 
-Simply open [Lovable](https://lovable.dev/projects/114acc04-1de6-4a54-b372-cf41b4f0f98b) and click on Share -> Publish.
+2. **API Limitations**:
+   - The Reqres API is a mock API, so actual data changes (create, update, delete) are not persisted
+   - The API returns simulated responses for these operations
 
-## I want to use a custom domain - is that possible?
+3. **Pagination**:
+   - The implementation uses client-side pagination based on the API's pagination structure
+   - Only a limited number of pages are available through the API
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+4. **Error Handling**:
+   - The application handles common API errors and displays appropriate messages
+   - Network errors and unexpected responses are caught and displayed to the user
+
+## Future Improvements
+
+- Add unit and integration tests
+- Implement more advanced filtering and sorting options
+- Add user profile management
+- Enhance the UI with animations and transitions
+- Implement more comprehensive error handling and logging
